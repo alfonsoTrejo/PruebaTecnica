@@ -2,12 +2,12 @@ import PyPDF2
 import re
 def deteccionLatina(texto):
     # Patrones de expresión regular para extraer
-    siniestro_pattern = r"SINIESTRO (\d+)"
-    nombre_asegurado_pattern = r"NOMBRE ASEGURADO ([A-ZÁÉÍÓÚÑ\s]+)EDAD"
-    nombre_doctor_pattern = r"MÉDICO TRATANTE ([A-Z\s]+)\n"
-    folio_pattern = r"FOLIO (\d+)"
+    siniestro_pattern = r"siniestro (\d+)"
+    nombre_asegurado_pattern = r"nombre asegurado ([a-záéíóúñ\s]+)edad"
+    nombre_doctor_pattern = r"médico tratante ([a-z\s]+)\n"
+    folio_pattern = r"folio (\d+)"
     monto_pattern = r"\$([0-9]+(?:\.[0-9]+)?)"
-    patron_concepto = r"([A-ZÁÉÍÓÚÑ]+\s+[0-9]+\s+)\$(?P<monto>(?:[1-9]\d*|0)(?:\.\d+)?)"
+    patron_concepto = r"([a-záéíóúñ]+\s+[0-9]+\s+)\$(?P<monto>(?:[1-9]\d*|0)(?:\.\d+)?)"
 
 
     # Buscar coincidencias de los patrones en el texto
@@ -37,10 +37,10 @@ def deteccionLatina(texto):
     print("Monto Total:", suma_montos)
 
 def deteccionMonterrey(texto):
-    siniestro_pattern =  r"Siniestro: (\d+)\.?\d*"
-    nombre_asegurado_pattern = r"Nombre del [Pp]aciente: ([A-Za-z\s]+?)(?=[F\n\t\b])"
-    nombre_doctor_pattern =  r"Médico [Tt]ratante: ([A-ZÁÉÍÓÚÑ\s]+)\b"
-    folio_pattern = r"Folio:\s*([A-Za-z\d]+)"
+    siniestro_pattern =  r"siniestro: (\d+)\.?\d*"
+    nombre_asegurado_pattern = r"nombre del [Pp]aciente: ([A-Za-z\s]+?)(?=[f\n\t\b])"
+    nombre_doctor_pattern =  r"médico [Tt]ratante: ([a-záéíóúñ\s]+)\b"
+    folio_pattern = r"folio:\s*([A-Za-z\d]+)"
     monto_pattern =  r"\s+([\w\s]+)\s+\$([\d,]+\.\d{2})\s+([\w\s]+)"
 
     siniestro_match = re.search(siniestro_pattern, texto)
@@ -63,25 +63,67 @@ def deteccionMonterrey(texto):
     print("Montos: ", montos)
     print("Monto Total: ", suma_montos)
     
-    
+def deteccionAtlas(texto):
+    siniestro_pattern = r"siniestro\s*([^\s\n]+)"
+    folio_pattern = r"folio\s*([^\s\n]+)"
+    nombre_paciente_patter = r"asegurado afectado\n*([^\n]+)"
+    doctor_patter = r"médico tratante\n*([^\n]+)"
+    monto_patter =  r"\$[ ]*([1-9][0-9,]+(?:\.[0-9]+)?)"
+
+    siniestro_match = re.search(siniestro_pattern, texto)
+    folio_match = re.search(folio_pattern, texto)
+    nombre_paciente_match = re.search(nombre_paciente_patter,texto)
+    doctor_match = re.search(doctor_patter,texto)
+    monto_match = re.findall(monto_patter,texto)
+
+    numero_siniestro = siniestro_match.group(1) if siniestro_match else None
+    folio = folio_match.group(1) if folio_match else None
+    nombre_paciente = nombre_paciente_match.group(1) if nombre_paciente_match else None
+    doctor = doctor_match.group(1) if doctor_match else None
+
+    suma_montos = 0
+    if monto_match:
+        for monto in monto_match:
+            monto = monto.replace(",", "")
+            suma_montos += float(monto)
+
+    print("siniestro:", numero_siniestro)
+    print("Folio:", folio)
+    print("Nombre paciente:", nombre_paciente)
+    print("Nombre Doctor:", doctor)
+    print("Montos:", len(monto_match))
+    print("Monto total:", suma_montos)
+
 
 def identificarPDF(text):
-    if text.startswith("Carta de Autorización"):
-        return "Seguros Monterrey"
-    elif text.startswith("LA LATINOAMERICANA, SEGUROS,  SA - HOJA DE  PROGRAMACIÓN"):
+    atlas_patter = r"seguros atlas"
+    latina_patter = r"la latinoamericana"
+    monterrey_patter = r"carta de autorizaciónno."
+
+    atlas_match = re.search(atlas_patter,text)
+    latina_match = re.search(latina_patter,text)
+    monterrey_match = re.search(monterrey_patter,text)
+    
+    if atlas_match:
+        return "atlas"
+    elif latina_match:
         return "La Latinoamérica"
-    else:
-        return "Atlas"
+    elif monterrey_match:
+        return "monterrey"
 
 
 if(__name__=="__main__"):
     for pdf_path in pdf_paths:
         reader = PyPDF2.PdfReader(pdf_path)
-        texto = reader.pages[0].extract_text()
+        texto = reader.pages[0].extract_text().lower()
         tipo = identificarPDF(texto)
-        if(tipo == "Seguros Monterrey" ):
+        print(pdf_path)
+        #print(texto)
+        if(tipo == "monterrey" ):
             deteccionMonterrey(texto)
         elif (tipo == "La Latinoamérica"):
             deteccionLatina(texto)
+        elif (tipo == "atlas"):
+            deteccionAtlas(texto)
         print("")
         
