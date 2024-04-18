@@ -87,10 +87,10 @@ def deteccionAtlas(texto):
             monto = monto.replace(",", "")
             suma_montos += float(monto)
 
-    print("siniestro:", numero_siniestro)
+    print("Número de Siniestro:", numero_siniestro)
     print("Folio:", folio)
-    print("Nombre paciente:", nombre_paciente)
-    print("Nombre Doctor:", doctor)
+    print("Número del paciente:", nombre_paciente)
+    print("Número del Doctor:", doctor)
     print("Montos:", len(monto_match))
     print("Monto total:", suma_montos)
 
@@ -111,6 +111,15 @@ def identificarPDF(text):
     elif monterrey_match:
         return "monterrey"
 
+pdf_paths = [
+    "./src/CDA_ANTONIO EDMUNDO MÉNDEZ VIGATA  - ANDROID_2024-03-13_CDA_ANTONIO EDMUNDO MÉNDEZ VIGATA  - ANDROID_2024-03-13_DOCUMENT_FROM_ANDROID_1.pdf",
+    "./src/CDA_BARBARA JORDAN PLASCENCIA - IOS_2024-03-21_Carta_siniestros_202400602.pdf",
+    "./src/CDA_BERENICE HERNANDEZ TORRES - ANDROID_2024-04-04_CDA_BERENICE HERNANDEZ TORRES - ANDROID_2024-04-04_DOCUMENT_FROM_ANDROID_1.pdf",
+    "./src/CDA_CHRISTIAN ALFREDO TORRES MARTINEZ  - IOS_2023-07-03_FROM_IOS_1.pdf",
+    "./src/CDA_ELOISA GONZALEZ SUSTAITA - IOS_2024-03-28_CDA_ELOISA GONZALEZ SUSTAITA - IOS_2024-03-28_FROM_IOS_1.pdf",
+    "./src/CDA_NUBIA JUDITH QUINTERO ORDOÑEZ  - IOS_2023-09-07_CDA_NUBIA JUDITH QUINTERO ORDOÑEZ  - IOS_2023-09-07_FROM_IOS_1.pdf",
+    "./src/CDA_SANCHEZ HERNANDEZ MARIA DE LOURDES - IOS_2024-03-19_Carta_siniestros_2024005289 (1).pdf",
+]
 
 if(__name__=="__main__"):
     for pdf_path in pdf_paths:
